@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TileIQ Pro — Professional Estimating Software for Tilers</title>
+<meta name="description" content="TileIQ Pro is the professional estimating app built exclusively for tiling contractors. Quotes, calculations, job management and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --slate:   #2B3D54;
+  --amber:   #E07A2F;
+  --amber2:  #F59E0B;
+  --midnight:#1B2A3C;
+  --stone:   #F7F4EF;
+  --ink:     #0D1B2A;
+  --muted:   #7A8EA8;
+  --border:  rgba(255,255,255,0.07);
+  --tile-sz: 56px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--stone);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── TILE GRID BACKGROUND ── */
+.tile-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: var(--tile-sz) var(--tile-sz);
+  pointer-events: none;
+}
+
+.tile-grid::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, transparent 40%, var(--ink) 100%);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  background: rgba(13,27,42,0.85);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--stone);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.nav-logo-tiles {
+  display: grid; grid-template-columns: repeat(3,10px); gap: 2px;
+}
+
+.nav-logo-tiles span {
+  width: 10px; height: 10px;
+  background: var(--slate);
+  border-radius: 1px;
+}
+
+.nav-logo-tiles span:nth-child(5) { background: var(--amber); }
+
+.nav-cta {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.btn-nav-demo {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--muted);
+  background: none; border: none; cursor: pointer;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.btn-nav-demo:hover { color: var(--stone); }
+
+.btn-nav-primary {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  background: var(--amber); color: var(--ink);
+  border: none; border-radius: 6px;
+  padding: 10px 20px; cursor: pointer;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-nav-primary:hover { background: var(--amber2); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 140px 24px 80px;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: '';
+  display: block; width: 32px; height: 1px;
+  background: var(--amber); opacity: 0.4;
+}
+
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(48px, 8vw, 96px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--stone);
+  max-width: 800px;
+  margin-bottom: 8px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--amber);
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.65;
+  margin: 28px auto 48px;
+}
+
+.hero-actions {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 700;
+  background: var(--amber); color: var(--ink);
+  border: none; border-radius: 8px;
+  padding: 16px 32px; cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(224,122,47,0.35);
+}
+.btn-primary:hover {
+  background: var(--amber2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(224,122,47,0.45);
+}
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  color: var(--stone);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 15px 28px; cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+/* ── APP PREVIEW ── */
+.preview-wrap {
+  position: relative; z-index: 1;
+  max-width: 420px; margin: 80px auto 0;
+  perspective: 1200px;
+}
+
+.phone-shell {
+  width: 100%; max-width: 320px;
+  margin: 0 auto;
+  background: #111827;
+  border-radius: 40px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  padding: 14px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.5),
+    0 40px 80px rgba(0,0,0,0.6),
+    0 0 60px rgba(224,122,47,0.08);
+  transform: rotateY(-8deg) rotateX(4deg);
+  transition: transform 0.5s ease;
+}
+.phone-shell:hover { transform: rotateY(0deg) rotateX(0deg); }
+
+.phone-screen {
+  background: #0D1B2A;
+  border-radius: 28px;
+  overflow: hidden;
+  aspect-ratio: 9/19;
+  position: relative;
+}
+
+.phone-notch {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 8px;
+  background: #111827; border-radius: 4px; z-index: 10;
+}
+
+.mock-app {
+  padding: 48px 16px 16px;
+  height: 100%;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.mock-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 4px;
+}
+
+.mock-title { font-size: 18px; font-weight: 700; color: #F7F4EF; font-family: 'DM Serif Display', serif; }
+.mock-badge { font-size: 9px; background: #E07A2F; color: #0D1B2A; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
+
+.mock-stat-row { display: flex; gap: 8px; }
+
+.mock-stat {
+  flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 10px;
+}
+.mock-stat-num { font-size: 20px; font-weight: 700; color: #E07A2F; font-family: 'DM Serif Display', serif; }
+.mock-stat-lbl { font-size: 9px; color: #7A8EA8; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.mock-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+
+.mock-card-top { display: flex; justify-content: space-between; align-items: center; }
+.mock-card-name { font-size: 11px; font-weight: 600; color: #F7F4EF; }
+.mock-card-status {
+  font-size: 9px; font-weight: 600; border-radius: 4px;
+  padding: 2px 7px;
+}
+.status-quoted { background: rgba(224,122,47,0.15); color: #E07A2F; }
+.status-accepted { background: rgba(34,197,94,0.15); color: #4ade80; }
+.status-progress { background: rgba(59,130,246,0.15); color: #60a5fa; }
+
+.mock-card-addr { font-size: 9px; color: #7A8EA8; }
+.mock-card-val { font-size: 13px; font-weight: 700; color: #F7F4EF; }
+
+.mock-bar {
+  height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; margin-top: 4px;
+}
+.mock-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #E07A2F, #F59E0B); }
+
+/* ── SECTION BASE ── */
+section {
+  position: relative; z-index: 1;
+  padding: 120px 24px;
+}
+
+.container {
+  max-width: 1100px; margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  line-height: 1.05;
+  color: var(--stone);
+  margin-bottom: 20px;
+}
+
+.section-sub {
+  font-size: 17px; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+  max-width: 520px;
+}
+
+/* ── STATS BAR ── */
+.stats-bar {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 24px;
+  background: rgba(255,255,255,0.02);
+}
+
+.stats-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.stat-item {
+  padding: 20px 32px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px; color: var(--amber);
+  line-height: 1;
+}
+
+.stat-desc {
+  font-size: 13px; color: var(--muted); margin-top: 6px;
+  font-weight: 400; letter-spacing: 0.02em;
+}
+
+/* ── FEATURES ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 64px;
+}
+
+.feature-card {
+  background: rgba(255,255,255,0.02);
+  padding: 40px 36px;
+  transition: background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.feature-card:hover { background: rgba(255,255,255,0.04); }
+.feature-card:hover::before { opacity: 1; }
+
+.feature-icon {
+  width: 44px; height: 44px;
+  background: rgba(224,122,47,0.1);
+  border: 1px solid rgba(224,122,47,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 20px;
+}
+
+.feature-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px; color: var(--stone);
+  margin-bottom: 10px;
+}
+
+.feature-desc {
+  font-size: 14px; color: var(--muted);
+  line-height: 1.65;
+}
+
+/* ── HOW IT WORKS ── */
+.how-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  margin-top: 64px;
+}
+
+.steps-list { display: flex; flex-direction: column; gap: 0; }
+
+.step {
+  display: flex; gap: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.2s;
+}
+.step:last-child { border-bottom: none; }
+
+.step-num {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  color: var(--amber); letter-spacing: 0.1em;
+  flex-shrink: 0; padding-top: 3px; width: 32px;
+}
+
+.step-content {}
+.step-title {
+  font-weight: 600; font-size: 16px;
+  color: var(--stone); margin-bottom: 6px;
+}
+.step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+.calc-preview {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+}
+
+.calc-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px; color: var(--stone);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+
+.calc-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.calc-row:last-child { border-bottom: none; }
+.calc-label { color: var(--muted); }
+.calc-val { color: var(--stone); font-weight: 600; font-family: 'Roboto Mono', monospace; font-size: 12px; }
+.calc-total {
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid rgba(224,122,47,0.3);
+  display: flex; justify-content: space-between;
+  font-weight: 700;
+}
+.calc-total-label { color: var(--stone); font-size: 15px; }
+.calc-total-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px; color: var(--amber);
+}
+
+/* ── PRICING ── */
+.pricing-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; max-width: 720px;
+  margin: 64px auto 0;
+}
+
+.pricing-card {
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px;
+  background: rgba(255,255,255,0.02);
+  position: relative;
+}
+
+.pricing-card.featured {
+  border-color: rgba(224,122,47,0.4);
+  background: rgba(224,122,47,0.04);
+}
+
+.pricing-badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--amber); color: var(--ink);
+  font-size: 11px; font-weight: 700;
+  padding: 4px 14px; border-radius: 20px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.pricing-tier {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px;
+}
+
+.pricing-price {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px; color: var(--stone);
+  line-height: 1;
+}
+
+.pricing-price span { font-size: 20px; color: var(--muted); vertical-align: top; margin-top: 10px; display: inline-block; }
+.pricing-price small { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--muted); }
+
+.pricing-annual {
+  font-size: 13px; color: var(--amber);
+  margin-top: 6px; margin-bottom: 28px;
+}
+
+.pricing-features {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 32px;
+}
+
+.pricing-features li {
+  font-size: 14px; color: var(--muted);
+  display: flex; align-items: flex-start; gap: 10px;
+  line-height: 1.5;
+}
+
+.pricing-features li::before {
+  content: '✓';
+  color: var(--amber); font-weight: 700;
+  flex-shrink: 0; margin-top: 1px;
+}
+
+.pricing-features li.dim::before { content: '—'; color: var(--border); }
+.pricing-features li.dim { color: rgba(122,142,168,0.4); }
+
+.btn-pricing {
+  width: 100%; padding: 14px;
+  border-radius: 8px; font-size: 15px; font-weight: 700;
+  cursor: pointer; text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none; display: block;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-pricing-primary {
+  background: var(--amber); color: var(--ink);
+  box-shadow: 0 4px 16px rgba(224,122,47,0.3);
+}
+.btn-pricing-primary:hover { background: var(--amber2); transform: translateY(-1px); }
+
+.btn-pricing-ghost {
+  background: transparent; color: var(--stone);
+  border: 1px solid var(--border) !important;
+}
+.btn-pricing-ghost:hover { background: rgba(255,255,255,0.05); }
+
+/* ── DEMO CTA ── */
+.demo-section {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(43,61,84,0.4) 0%, rgba(27,42,60,0.6) 100%);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.demo-inner {
+  max-width: 640px; margin: 0 auto;
+}
+
+.demo-tile-row {
+  display: flex; justify-content: center; gap: 6px;
+  margin-bottom: 48px;
+}
+
+.demo-tile {
+  width: 40px; height: 40px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  animation: tileFloat 3s ease-in-out infinite;
+}
+
+.demo-tile:nth-child(2) { background: rgba(224,122,47,0.15); border-color: rgba(224,122,47,0.3); animation-delay: 0.2s; }
+.demo-tile:nth-child(3) { animation-delay: 0.4s; }
+.demo-tile:nth-child(4) { animation-delay: 0.6s; }
+.demo-tile:nth-child(5) { background: rgba(224,122,47,0.08); animation-delay: 0.8s; }
+
+@keyframes tileFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  padding: 48px 24px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+.footer-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+
+.footer-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--muted);
+}
+
+.footer-links {
+  display: flex; gap: 28px;
+}
+
+.footer-links a {
+  font-size: 13px; color: var(--muted);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--stone); }
+
+.footer-copy { font-size: 13px; color: rgba(122,142,168,0.5); }
+
+/* ── ANIMATIONS ── */
+.fade-up {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .stat-item:nth-child(2) { border-right: none; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .how-grid { grid-template-columns: 1fr; gap: 48px; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+}
+
+@media (max-width: 600px) {
+  nav .btn-nav-demo { display: none; }
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .btn-primary, .btn-ghost { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="tile-grid"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-tiles">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
+    TileIQ Pro
+  </a>
+  <div class="nav-cta">
+    <a href="/app" class="btn-nav-demo">Try Demo</a>
+    <span class="btn-nav-primary" style="opacity:0.5;cursor:default;">Coming Soon</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Built for Tilers, by a Tiler</div>
+  <h1 class="hero-title">Estimating that<br>works as hard<br>as <em>you do</em></h1>
+  <p class="hero-sub">TileIQ Pro handles the calculations, quotes, and job management — so you can focus on the tiles.</p>
+  <div class="hero-actions">
+    <span class="btn-primary" style="opacity:0.5;cursor:default;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76a2 2 0 01-.69-.15 2 2 0 01-1.31-1.9V2.29A2 2 0 012.49.39a2 2 0 012.18.24l17.24 9.71a2 2 0 010 3.32L4.67 23.37a2 2 0 01-1.49.39z"/></svg>
+      Coming Soon on Google Play
+    </span>
+    <a href="/app" class="btn-ghost">
+      👀 Try Demo
+    </a>
+  </div>
+
+  <!-- Phone mockup -->
+  <div class="preview-wrap fade-up">
+    <div class="phone-shell">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="mock-app">
+          <div class="mock-header">
+            <div class="mock-title">Dashboard</div>
+            <div class="mock-badge">PRO</div>
+          </div>
+          <div class="mock-stat-row">
+            <div class="mock-stat">
+              <div class="mock-stat-num">6</div>
+              <div class="mock-stat-lbl">Active Jobs</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-num">£14.2k</div>
+              <div class="mock-stat-lbl">Quoted</div>
+            </div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-top">
+              <div class="mock-card-name">Mitchell — Bathroom</div>
+              <div class="mock-card-status status-quoted">Quoted</div>
+            </div>
+            <div class="mock-card-addr">14 Elm Grove, Oxford</div>
+            <div class="mock-card-val">£2,840.00</div>
+            <div class="mock-bar"><div class="mock-bar-fill" style="width:75%"></div></div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-top">
+              <div class="mock-card-name">Clarke — Kitchen Floor</div>
+              <div class="mock-card-status status-accepted">Accepted</div>
+            </div>
+            <div class="mock-card-addr">8 Westfield Rd, Swindon</div>
+            <div class="mock-card-val">£1,650.00</div>
+            <div class="mock-bar"><div class="mock-bar-fill" style="width:100%"></div></div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-top">
+              <div class="mock-card-name">Thornton — Hallway</div>
+              <div class="mock-card-status status-progress">Enquiry</div>
+            </div>
+            <div class="mock-card-addr">22 Park Lane, Wantage</div>
+            <div class="mock-card-val">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item fade-up">
+      <div class="stat-num">12+</div>
+      <div class="stat-desc">Material types calculated</div>
+    </div>
+    <div class="stat-item fade-up" style="transition-delay:0.1s">
+      <div class="stat-num">60s</div>
+      <div class="stat-desc">From room to full quote</div>
+    </div>
+    <div class="stat-item fade-up" style="transition-delay:0.2s">
+      <div class="stat-num">6</div>
+      <div class="stat-desc">Tile types supported</div>
+    </div>
+    <div class="stat-item fade-up" style="transition-delay:0.3s">
+      <div class="stat-num">100%</div>
+      <div class="stat-desc">Built for UK tilers</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section>
+  <div class="container">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything a tiler<br>actually needs</h2>
+    <p class="section-sub">No bloat. No guesswork. Just the tools that matter on the job.</p>
+
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon">📐</div>
+        <div class="feature-title">Precise Calculations</div>
+        <div class="feature-desc">Tiles, adhesive, grout, cement board, levelling compound, silicone — all calculated automatically per room with configurable wastage.</div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.1s">
+        <div class="feature-icon">📄</div>
+        <div class="feature-title">Professional Quotes</div>
+        <div class="feature-desc">Branded PDF quotes with your company logo and details. Send by email, share by WhatsApp, or get customers to accept online.</div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.2s">
+        <div class="feature-icon">🏗️</div>
+        <div class="feature-title">Job Pipeline</div>
+        <div class="feature-desc">Track every job from Enquiry through to Complete. Customer details, notes, photos, and status — all in one place.</div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.1s">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI Assistant</div>
+        <div class="feature-desc">Ask anything — pricing advice, material queries, customer communication tips. A knowledgeable assistant built for the trade.</div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.2s">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Schedule & Calendar</div>
+        <div class="feature-desc">Book in jobs and send calendar invites directly to customers. They can accept, decline, or suggest alternative dates.</div>
+      </div>
+      <div class="feature-card fade-up" style="transition-delay:0.3s">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Accounting Export</div>
+        <div class="feature-desc">Export accepted quotes directly to FreeAgent, QuickBooks, or Sage — no double entry, no manual invoicing.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="background: rgba(255,255,255,0.015); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Quote a job in<br>under a minute</h2>
+    <div class="how-grid">
+      <div class="steps-list">
+        <div class="step fade-up">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">Add the customer & job</div>
+            <div class="step-desc">Enter the customer's name, address and contact details. Takes seconds.</div>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.1s">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">Add rooms & measurements</div>
+            <div class="step-desc">Floor only, wall only, or both. Enter dimensions and pick your tile type and size.</div>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.2s">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">Set your labour rate</div>
+            <div class="step-desc">Price by m² or day rate. Add any prep materials — levelling, cement board, tanking.</div>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.3s">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">Send the quote</div>
+            <div class="step-desc">PDF generated instantly. Email or WhatsApp it to the customer. They accept online, you get notified.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc-preview fade-up" style="transition-delay:0.2s">
+        <div class="calc-title">📐 Main Bathroom — Calculation</div>
+        <div class="calc-row">
+          <span class="calc-label">Floor area</span>
+          <span class="calc-val">6.72 m²</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Wall area</span>
+          <span class="calc-val">25.44 m²</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Tiles (inc. 10% wastage)</span>
+          <span class="calc-val">198 tiles</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Adhesive</span>
+          <span class="calc-val">8 bags</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Grout</span>
+          <span class="calc-val">3.2 kg</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Cement board</span>
+          <span class="calc-val">7 sheets</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Levelling compound</span>
+          <span class="calc-val">2 bags</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Labour (£45/m²)</span>
+          <span class="calc-val">£1,449.00</span>
+        </div>
+        <div class="calc-total">
+          <span class="calc-total-label">Total ex VAT</span>
+          <span class="calc-total-val">£2,840.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section>
+  <div class="container" style="text-align:center">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, honest pricing</h2>
+    <p class="section-sub" style="margin:0 auto">Start free. Upgrade when you're ready. No hidden fees, no contracts.</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card fade-up">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price"><span>£</span>0</div>
+        <div class="pricing-annual" style="color:var(--muted)">Forever free</div>
+        <ul class="pricing-features">
+          <li>4 quotes per month</li>
+          <li>2 active jobs</li>
+          <li>5 customers</li>
+          <li>Basic PDF quotes</li>
+          <li class="dim">AI assistant</li>
+          <li class="dim">Accounting export</li>
+          <li class="dim">Laser measurement</li>
+        </ul>
+        <span class="btn-pricing btn-pricing-ghost" style="opacity:0.5;cursor:default;">Coming Soon</span>
+      </div>
+
+      <div class="pricing-card featured fade-up" style="transition-delay:0.15s">
+        <div class="pricing-badge">Most Popular</div>
+        <div class="pricing-tier">Pro</div>
+        <div class="pricing-price"><span>£</span>19.99<small>/mo</small></div>
+        <div class="pricing-annual">or £149.99/year — save 37%</div>
+        <ul class="pricing-features">
+          <li>Unlimited quotes & jobs</li>
+          <li>Unlimited customers</li>
+          <li>Branded PDF quotes</li>
+          <li>AI assistant</li>
+          <li>FreeAgent, QuickBooks & Sage</li>
+          <li>Leica Disto BLE measurements</li>
+          <li>Online quote acceptance</li>
+        </ul>
+        <span class="btn-pricing btn-pricing-primary" style="opacity:0.6;cursor:default;">Coming Soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO CTA -->
+<section class="demo-section">
+  <div class="container">
+    <div class="demo-inner">
+      <div class="demo-tile-row">
+        <div class="demo-tile"></div>
+        <div class="demo-tile"></div>
+        <div class="demo-tile"></div>
+        <div class="demo-tile"></div>
+        <div class="demo-tile"></div>
+      </div>
+      <div class="section-label" style="justify-content:center;display:flex">Try it now</div>
+      <h2 class="section-title" style="margin-bottom:16px">See it in action<br>before you commit</h2>
+      <p class="section-sub" style="margin: 0 auto 40px; text-align:center">Load the full app with sample jobs and explore every feature. No account needed.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="/app" class="btn-primary">👀 Open Demo</a>
+        <span class="btn-ghost" style="opacity:0.5;cursor:default;">Coming Soon on Android</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">TileIQ Pro</div>
+    <div class="footer-links">
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+      <a href="mailto:hello@tileiq.app">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 TileIQ Pro. Built for tilers, by a tiler.</div>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
