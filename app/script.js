@@ -10,153 +10,25 @@ window.onerror = function(msg, src, line) {
         + '<br><br>' + (src||'') + ' line ' + line + '</div>';
 };
 
-/* ─── PLATFORM DETECTION ─────────────────────────────────────── */
-const IS_WEB = !window.Capacitor || !window.Capacitor.isNativePlatform();
-
-/* ─── DEMO MODE ─────────────────────────────────────────────── */
-let DEMO_MODE = false;
-
-const DEMO_USER = {
-    id: 'demo-user-000',
-    email: 'demo@tileiq.app',
-    user_metadata: { full_name: 'Demo Tiler' }
-};
-
-const DEMO_JOBS = [
-    {
-        id: 'demo-job-001',
-        userId: 'demo-user-000',
-        customerName: 'John & Sarah Mitchell',
-        address: '14 Elm Grove, Oxford, OX1 2AB',
-        phone: '07911 234567',
-        email: 'mitchell@example.com',
-        status: 'Quoted',
-        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
-        notes: 'Full bathroom renovation. Customer wants large format tiles.',
-        rooms: [
-            {
-                id: 'demo-room-001',
-                name: 'Main Bathroom',
-                mode: 'both',
-                floorLength: 3.2, floorWidth: 2.1,
-                wallHeight: 2.4, wallPerimeter: 10.6,
-                tileSizeL: 600, tileSizeW: 300,
-                tileType: 'Porcelain',
-                wastageFloor: 10, wastageWall: 12,
-                labourRate: 45, labourMode: 'sqm',
-                adhesiveBags: 0, groutKg: 0,
-                includeFloor: true, includeWall: true,
-                includeCementBoard: true, includeMembrane: false,
-                includeLevelling: true, includeSilicone: true,
-            },
-            {
-                id: 'demo-room-002',
-                name: 'En Suite',
-                mode: 'both',
-                floorLength: 1.8, floorWidth: 1.4,
-                wallHeight: 2.4, wallPerimeter: 6.4,
-                tileSizeL: 300, tileSizeW: 300,
-                tileType: 'Ceramic',
-                wastageFloor: 10, wastageWall: 12,
-                labourRate: 40, labourMode: 'sqm',
-                adhesiveBags: 0, groutKg: 0,
-                includeFloor: true, includeWall: true,
-                includeCementBoard: false, includeMembrane: false,
-                includeLevelling: false, includeSilicone: true,
-            }
-        ],
-        quote: { total: 2840.00, status: 'sent', sentAt: new Date(Date.now() - 5 * 86400000).toISOString() }
-    },
-    {
-        id: 'demo-job-002',
-        userId: 'demo-user-000',
-        customerName: 'Clarke Property Group',
-        address: '8 Westfield Road, Swindon, SN1 4GH',
-        phone: '01793 556677',
-        email: 'info@clarkeproperty.co.uk',
-        status: 'In Progress',
-        createdAt: new Date(Date.now() - 14 * 86400000).toISOString(),
-        notes: 'Kitchen floor only. Herringbone pattern requested.',
-        rooms: [
-            {
-                id: 'demo-room-003',
-                name: 'Kitchen Floor',
-                mode: 'floor',
-                floorLength: 5.5, floorWidth: 4.2,
-                wallHeight: 0, wallPerimeter: 0,
-                tileSizeL: 600, tileSizeW: 600,
-                tileType: 'Herringbone',
-                wastageFloor: 15, wastageWall: 12,
-                labourRate: 50, labourMode: 'sqm',
-                adhesiveBags: 0, groutKg: 0,
-                includeFloor: true, includeWall: false,
-                includeCementBoard: false, includeMembrane: false,
-                includeLevelling: true, includeSilicone: false,
-            }
-        ],
-        quote: { total: 1650.00, status: 'accepted', acceptedAt: new Date(Date.now() - 10 * 86400000).toISOString() }
-    },
-    {
-        id: 'demo-job-003',
-        userId: 'demo-user-000',
-        customerName: 'Rebecca Thornton',
-        address: '22 Park Lane, Wantage, OX12 8BN',
-        phone: '07700 987654',
-        email: 'rebecca.t@example.com',
-        status: 'Enquiry',
-        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-        notes: 'New build. Wants natural stone in hallway and living room.',
-        rooms: [],
-        quote: null
-    }
-];
-
-function startDemo() {
-    DEMO_MODE = true;
-    currentUser = DEMO_USER;
-    jobs = JSON.parse(JSON.stringify(DEMO_JOBS));
-    _proStatus = true;
-    localStorage.setItem('tileiq-demo-mode', 'true');
-    show('screen-home');
-    renderHomeScreen();
-    showDemoBanner();
-}
-
-function showDemoBanner() {
-    if (document.getElementById('demo-banner')) return;
-    const banner = document.createElement('div');
-    banner.id = 'demo-banner';
-    banner.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-            <span>\u{1f440} Demo Mode — <strong>data is not saved</strong></span>
-            <button onclick="exitDemo()" style="background:#f59e0b;color:#0f172a;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">Sign Up Free</button>
-        </div>
-    `;
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#1e3a5f;color:#93c5fd;font-size:13px;padding:8px 16px;text-align:center;border-bottom:1px solid #2563eb;';
-    document.body.prepend(banner);
-    document.getElementById('app').style.paddingTop = '40px';
-}
-
-function exitDemo() {
-    DEMO_MODE = false;
-    currentUser = null;
-    jobs = [];
-    _proStatus = false;
-    localStorage.removeItem('tileiq-demo-mode');
-    const banner = document.getElementById('demo-banner');
-    if (banner) banner.remove();
-    document.getElementById('app').style.paddingTop = '';
-    show('screen-signup');
-    generateCaptcha();
-}
-
-function demoBlock(featureName) {
-    featureName = featureName || 'This feature';
-    const msg = document.createElement('div');
-    msg.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:#93c5fd;padding:12px 20px;border-radius:10px;font-size:14px;z-index:99999;border:1px solid #2563eb;text-align:center;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
-    msg.innerHTML = `<strong>${featureName}</strong> is not available in demo.<br><span style="font-size:12px;color:#60a5fa;margin-top:4px;display:block;cursor:pointer;" onclick="exitDemo()">Sign up free to unlock everything &#x2192;</span>`;
-    document.body.appendChild(msg);
-    setTimeout(() => msg.remove(), 3500);
+/* ─── BLOCK WEB BROWSER ACCESS ──────────────────────────────── */
+if (!window.Capacitor || !window.Capacitor.isNativePlatform()) {
+  document.body.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:'DM Sans',sans-serif;background:#0f172a;color:#f1f5f9;text-align:center;padding:2rem;">
+      <img src="assets/icon.png" style="width:80px;margin-bottom:1.5rem;border-radius:16px;" />
+      <h1 style="font-size:1.5rem;margin-bottom:0.5rem;">TileIQ Pro</h1>
+      <p style="color:#94a3b8;margin-bottom:2rem;">This app is only available on Android.<br>Download it to get started.</p>
+      <a href="https://play.google.com/store/apps/details?id=com.tileiq.pro"
+         style="background:#f59e0b;color:#0f172a;padding:0.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;display:block;margin-bottom:1rem;">
+        Get it on Google Play
+      </a>
+      <a href="https://tileiq.app"
+         style="color:#94a3b8;font-size:0.9rem;text-decoration:underline;">
+        Learn more at tileiq.app
+      </a>
+    </div>
+  `;
+  window.onerror = null;
+  throw new Error('Web access blocked');
 }
 
 /* ─── STATE ─────────────────────────────────────────────────── */
@@ -290,6 +162,16 @@ function _updateBottomNav(screenId) {
 
 function getJob()  { return jobs.find(j => j.id === currentJobId); }
 
+function getDirections(jobId) {
+    var job = jobId ? jobs.find(function(j){ return j.id === jobId; }) : getJob();
+    if (!job) return;
+    var parts = [job.address, job.city, job.postcode].filter(Boolean);
+    if (!parts.length) { alert("No address saved for this job."); return; }
+    var query = encodeURIComponent(parts.join(", "));
+    window.open("geo:0,0?q=" + query, "_system");
+}
+
+
 function stripPhotosFromJobs() {
     let changed = false;
     jobs.forEach(j => {
@@ -321,7 +203,6 @@ let _syncTimer    = null;
 // ── 1. Write locally immediately, then schedule cloud sync ───
 function saveAll() {
     if (!currentUser) return;
-    if (DEMO_MODE) return; // demo: keep in memory only
 
     // Stamp updatedAt on current job so sort-by-recent works
     const _activeJob = currentJobId && jobs.find(j => j.id === currentJobId);
@@ -2405,6 +2286,62 @@ function loadCustomer(id, prefix) {
 }
 
 
+/* ── Paste & Extract customer details ──────────────────────────── */
+function showPasteExtract() {
+    const existing = document.getElementById('paste-extract-modal');
+    if (existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'paste-extract-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:#ffffff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:600px;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:700;color:#1e293b;">📋 Paste from Message</div>
+          <button onclick="document.getElementById('paste-extract-modal').remove()" style="background:none;border:none;color:var(--muted,#64748b);font-size:22px;cursor:pointer;line-height:1;">×</button>
+        </div>
+        <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Paste a WhatsApp message, email, or any text — AI will extract the customer details.</p>
+        <textarea id="paste-extract-text" placeholder="e.g. Hi, I'm John Smith, 07712 345678, 14 Oak Road, Swindon SN1 2AB..." rows="6" style="width:100%;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;color:#1e293b;padding:12px;font-size:14px;font-family:inherit;resize:none;box-sizing:border-box;"></textarea>
+        <div id="paste-extract-error" style="color:#f87171;font-size:13px;margin-top:8px;display:none;"></div>
+        <button id="paste-extract-btn" onclick="extractCustomerFromText()" style="width:100%;margin-top:12px;padding:14px;background:var(--amber,#E07A2F);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">✨ Extract Details</button>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    setTimeout(() => document.getElementById('paste-extract-text')?.focus(), 100);
+}
+
+async function extractCustomerFromText() {
+    const text = document.getElementById('paste-extract-text')?.value.trim();
+    if (!text) return;
+    const btn = document.getElementById('paste-extract-btn');
+    const errEl = document.getElementById('paste-extract-error');
+    btn.disabled = true;
+    btn.textContent = '⏳ Extracting...';
+    errEl.style.display = 'none';
+    try {
+        const resp = await fetch('https://damp-bread-e0f9.kevin-woodley.workers.dev', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'extract_customer', text })
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.customer) throw new Error(data.error || 'Extraction failed');
+        const c = data.customer;
+        if (c.name)     document.getElementById('nj-name').value     = c.name;
+        if (c.phone)    document.getElementById('nj-phone').value    = c.phone;
+        if (c.email)    document.getElementById('nj-email').value    = c.email;
+        if (c.address)  document.getElementById('nj-address').value  = c.address;
+        if (c.city)     document.getElementById('nj-city').value     = c.city;
+        if (c.postcode) document.getElementById('nj-postcode').value = c.postcode;
+        if (c.notes)    document.getElementById('nj-desc').value     = c.notes;
+        document.getElementById('paste-extract-modal')?.remove();
+    } catch(e) {
+        errEl.textContent = e.message || 'Something went wrong. Please try again.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = '✨ Extract Details';
+    }
+}
+
 function goNewJob() {
     if (!checkJobLimit()) return;
     ["nj-name","nj-phone","nj-email","nj-address","nj-city","nj-postcode","nj-desc"]
@@ -2412,6 +2349,18 @@ function goNewJob() {
     document.getElementById("nj-status").value = "enquiry";
     document.getElementById("nj-supply").value = "contractor";
     show("screen-new-job");
+    // Inject "Paste from message" button if not already present
+    const njName = document.getElementById("nj-name");
+    if (njName && !document.getElementById("paste-from-msg-btn")) {
+        const pasteBtn = document.createElement("button");
+        pasteBtn.id = "paste-from-msg-btn";
+        pasteBtn.type = "button";
+        pasteBtn.textContent = "📋 Paste from message";
+        pasteBtn.style.cssText = "width:100%;padding:11px;margin-bottom:14px;background:transparent;border:1px dashed var(--amber,#E07A2F);color:var(--amber,#E07A2F);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;";
+        pasteBtn.onclick = showPasteExtract;
+        njName.closest(".form-card, .field-group")?.parentElement?.insertBefore(pasteBtn, njName.closest(".form-card, .field-group")) ||
+        njName.parentElement?.insertBefore(pasteBtn, njName);
+    }
     setTimeout(() => document.getElementById("nj-name").focus(), 100);
 }
 
@@ -2770,7 +2719,6 @@ async function goMessages() {
 }
 
 async function sendTilerReply(messageId, quoteToken) {
-    if (DEMO_MODE) { demoBlock("Sending messages"); return; }
     const input = document.getElementById("reply-input-"+messageId);
     const reply = input?.value.trim();
     if (!reply) return;
@@ -2887,6 +2835,7 @@ function renderJobView() {
             ${job.phone ? `<span class="cbar-contact">📞 ${esc(job.phone)}</span>` : ""}
             ${job.email ? `<span class="cbar-contact">✉ ${esc(job.email)}</span>` : ""}
             ${job.tileSupply === "customer" ? `<span class="cbar-badge">👤 Customer tiles</span>` : ""}
+            ${parts ? `<button onclick="getDirections('${job.id}')" style="background:#E07A2F;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px;display:inline-block;">🗺️ Directions</button>` : ""}
         </div>
     `;
     // Attach touch/click listeners via delegation — more reliable in Android WebView
@@ -5608,7 +5557,6 @@ Reply with only the sentence, no extra text.`;
 
 /* ─── CSV Export ─── */
 function exportCSV() {
-    if (DEMO_MODE) { demoBlock("CSV export"); return; }
     const j = getJob();
     const rows = [["Quote ID","Customer","Room","Surface","Type","Area (m²)","Total (ex VAT)"]];
     const qid  = "Q" + Date.now().toString().slice(-6);
@@ -5941,7 +5889,6 @@ function buildPDFDoc() {
 }
 
 function downloadPDF() {
-    if (DEMO_MODE) { demoBlock("PDF download"); return; }
     if (!window.jspdf || !window.jspdf.jsPDF) {
         alert("PDF generator not loaded. Check your connection and refresh.");
         return;
@@ -5988,7 +5935,6 @@ async function shareQuote() {
 
 /* ─── Share via WhatsApp ─── */
 async function shareViaWhatsApp() {
-    if (DEMO_MODE) { demoBlock("WhatsApp share"); return; }
     const j = getJob();
     const pdf = buildPDFBase64();
     if (!pdf) { alert("PDF generator not loaded."); return; }
@@ -6044,7 +5990,6 @@ async function shareViaWhatsApp() {
 
 /* ─── Share via Email ─── */
 async function shareViaEmail() {
-    if (DEMO_MODE) { demoBlock("Email share"); return; }
     const j = getJob();
     const pdf = buildPDFBase64();
     if (!pdf) { alert("PDF generator not loaded."); return; }
@@ -6244,7 +6189,6 @@ const FA_REDIRECT_URI = "https://tileiq.app/fa-callback";
 const FA_AUTH_URL     = "https://api.freeagent.com/v2/approve_app";
 
 async function freeAgentConnect() {
-    if (DEMO_MODE) { demoBlock("FreeAgent export"); return; }
     const params = new URLSearchParams({ response_type: "code", client_id: FA_CLIENT_ID, redirect_uri: FA_REDIRECT_URI });
     const url    = `${FA_AUTH_URL}?${params.toString()}`;
     const { Browser } = window.Capacitor?.Plugins || {};
@@ -6375,7 +6319,6 @@ const QBO_AUTH_URL    = "https://appcenter.intuit.com/connect/oauth2";
 const QBO_SCOPES      = "com.intuit.quickbooks.accounting";
 
 async function qboConnect() {
-    if (DEMO_MODE) { demoBlock("QuickBooks export"); return; }
     const state  = btoa(JSON.stringify({ ts: Date.now() }));
     const params = new URLSearchParams({ response_type: "code", client_id: QBO_CLIENT_ID, redirect_uri: QBO_REDIRECT_URI, scope: QBO_SCOPES, state });
     const url    = `${QBO_AUTH_URL}?${params.toString()}`;
@@ -6441,7 +6384,6 @@ function updateQBOButton() {
 }
 
 async function exportQBO() {
-    if (DEMO_MODE) { demoBlock("QuickBooks export"); return; }
     if (!checkProFeature("accounting")) return;
     const tokens = await getValidQBOToken();
     if (!tokens) { qboConnect(); return; }
@@ -6637,7 +6579,6 @@ async function sendInvoiceShare() {
 }
 
 async function sendQuote() {
-    if (DEMO_MODE) { demoBlock("Sending quotes"); return; }
     const j = getJob();
     if (!j) return;
     getQuoteToken(j);
@@ -6891,7 +6832,6 @@ const SAGE_AUTH_URL      = "https://www.sageone.com/oauth2/auth/central?filter=a
 const SAGE_SCOPES        = "full_access";
 
 async function sageConnect() {
-    if (DEMO_MODE) { demoBlock("Sage export"); return; }
     const state  = "sage_" + Date.now();
     const params = new URLSearchParams({
         response_type: "code",
@@ -6967,7 +6907,6 @@ function updateSageButton() {
 }
 
 async function exportSage() {
-    if (DEMO_MODE) { demoBlock("Sage export"); return; }
     if (!checkProFeature("accounting")) return;
     const tokens = await getValidSageToken();
     if (!tokens) { sageConnect(); return; }

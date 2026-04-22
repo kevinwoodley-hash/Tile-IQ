@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>TileIQ Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <base href="/app/">
     <link rel="stylesheet" href="style.css">
     <style>
         .page-body { padding-bottom: calc(70px + env(safe-area-inset-bottom)) !important; }
@@ -76,12 +75,6 @@
                 <a href="#" onclick="showForgot();return false;">Forgot password?</a>
                 <span class="auth-sep">·</span>
                 <a href="#" onclick="show('screen-signup');generateCaptcha();return false;">Create account</a>
-            </div>
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);text-align:center;">
-                <p style="color:#64748b;font-size:12px;margin-bottom:10px;">Want to explore first?</p>
-                <button onclick="startDemo()" class="btn-secondary auth-btn" style="background:transparent;border:1px solid #334155;color:#94a3b8;font-size:14px;">
-                    👀 Try Demo
-                </button>
             </div>
         </div>
     </div>
@@ -452,7 +445,10 @@
         <div class="form-card">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                 <div class="form-section-label" style="margin-bottom:0;">Customer Details</div>
-                <button onclick="showSavedCustomers('nj')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">👤 Saved</button>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="showPasteExtract()" style="background:none;border:1px solid var(--amber,#E07A2F);color:var(--amber,#E07A2F);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">📋 Paste</button>
+                    <button onclick="showSavedCustomers('nj')" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;">👤 Saved</button>
+                </div>
             </div>
             <div class="field-group">
                 <label>Customer Name *</label>
